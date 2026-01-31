@@ -6,6 +6,7 @@ services:
   # FastAPI back-end
   # ---------------------------------------------------------------------------
   - type: web
+    runtime: static
     name: ai-news-api
     env: python
     plan: free
@@ -53,7 +54,7 @@ services:
       cd frontend
       npm ci
       npm run build
-    publishPath: frontend/dist
+    staticPublishPath: frontend/dist
     headers:
       # Ensure SPA routing works
       - source: /*
