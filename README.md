@@ -9,9 +9,10 @@
 ```mermaid
 flowchart TD
     A[RSS & HTML Scraper] --> B[Article Parser]
-    A2[YouTube • Captions] --> B2[Transcript Cleaner]
-    B & B2 --> C[NLP Summariser (OpenAI)]
-    C --> D[Embedding + Ranking]
+    A2[YouTube Captions] --> B2[Transcript Cleaner]
+    B --> C[NLP Summariser]
+    B2 --> C
+    C --> D[Embedding & Ranking]
     D --> E[Digest Formatter]
     E --> F[Email Sender]
 ```
