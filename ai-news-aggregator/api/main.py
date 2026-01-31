@@ -116,6 +116,11 @@ def get_db():
 # API Endpoints
 # -----------------------------------------------------------------------------
 
+@app.get("/", tags=["Meta"])
+async def root():
+    """Root endpoint - helpful message and link to docs."""
+    return {"message": "AI News API - see /docs for interactive docs"}
+
 @app.get("/api/health")
 async def health_check():
     """Health check endpoint."""
