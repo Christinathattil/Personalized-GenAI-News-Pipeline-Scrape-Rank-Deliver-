@@ -11,10 +11,9 @@ services:
     rootDir: ai-news-aggregator
     plan: free
     buildCommand: |
-      cd ai-news-aggregator
       pip install --upgrade pip
       pip install -e .
-    startCommand: bash -c 'cd ai-news-aggregator && uvicorn api.main:app --host 0.0.0.0 --port $PORT'
+    startCommand: uvicorn api.main:app --host 0.0.0.0 --port $PORT
     autoDeploy: true
     healthCheckPath: /api/health
     envVars:
