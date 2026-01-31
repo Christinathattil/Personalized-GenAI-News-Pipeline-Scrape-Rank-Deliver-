@@ -9,15 +9,15 @@
 ```mermaid
 flowchart TB
     S([Scheduler]) --> A[RSS & HTML Scraper]
-    S --> A2[YouTube Captions Fetcher]
-    A --> DB[(PostgreSQL – raw)]
-    A2 --> B2[Transcript Cleaner]
-    B2 --> DB
-    DB --> C[NLP Summariser (OpenAI)]
-    C --> E[Embeddings Generator]
+    S --> V[YouTube Captions]
+    A --> DB[(PostgreSQL)]
+    V --> T[Transcript Cleaner]
+    T --> DB
+    DB --> C[NLP Summariser]
+    C --> E[Embeddings]
     E --> R[Ranker]
     R --> F[Digest Formatter]
-    F --> M[SMTP Email Sender]
+    F --> M[SMTP Sender]
 ```
 
 *Repository mapping*
