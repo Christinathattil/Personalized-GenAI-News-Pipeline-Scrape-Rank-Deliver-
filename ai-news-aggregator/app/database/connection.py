@@ -32,7 +32,19 @@ _POSTGRES_DB = os.getenv("POSTGRES_DB", "ai_news_aggregator")
 
 
 def get_database_url() -> str:  # noqa: D401
-    """Return SQLAlchemy URL for Postgres credentials pulled from env vars."""
+    """Return SQLAlchemy URL for Postgres credentials pulled from env vars.
+    
+    Prefers DATABASE_URL (used by Render, Heroku, etc.) if set.
+    """
+    url = os.getenv("DATABASE_URL")
+    if url:
+        # Render/Heroku use postgres:// but SQLAlchemy 1.4+ requires postgresql://
+        if url.startswith("postgres://"):
+            url = url.replace("postgres://", "postgresql://", 1)
+        # Ensure psycopg2 driver
+        if url.startswith("postgresql://"):
+            url = url.replace("postgresql://", "postgresql+psycopg2://", 1)
+        return url
     return (
         "postgresql+psycopg2://"
         f"{_POSTGRES_USER}:{_POSTGRES_PASSWORD}@{_POSTGRES_HOST}:{_POSTGRES_PORT}/{_POSTGRES_DB}"
