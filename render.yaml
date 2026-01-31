@@ -58,11 +58,10 @@ services:
     staticPublishPath: frontend/dist
     headers:
       # Ensure SPA routing works
-      - source: /*
-        headers:
-          - key: Cache-Control
-            value: no-cache
-    redirects:
+      - path: /*
+        name: Cache-Control
+        value: no-cache
+    routes:
       # Fallback to index.html for client-side routing
       - source: /.*
         destination: /index.html
