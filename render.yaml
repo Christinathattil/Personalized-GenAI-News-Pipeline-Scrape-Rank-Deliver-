@@ -65,7 +65,7 @@ services:
       # Fallback to index.html for client-side routing
       - source: /.*
         destination: /index.html
-        statusCode: 200
+        type: rewrite
 
 # -----------------------------------------------------------------------------
 # PostgreSQL database (Render automatically injects DATABASE_URL)
