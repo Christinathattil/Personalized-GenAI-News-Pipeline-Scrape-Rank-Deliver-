@@ -127,7 +127,41 @@ uvicorn app.main:app --reload --port 8000
 
 ---
 
-## 📈 Extended Architecture
+## � Docker & Render Deployment
+
+### Local Docker Compose
+```bash
+cd Personalized-GenAI-News-Pipeline-Scrape-Rank-Deliver-/ai-news-aggregator
+cp docker/example.env docker/.env   # review & edit variables
+docker compose --profile all up --build
+```
+This spins up PostgreSQL, FastAPI API, worker processes and the React dashboard—everything wired together just like production.
+
+### Render.com
+1. Create a **Blueprint** service and point it to this repo.
+2. Add env vars from `.env` / `docker/example.env` in the Render dashboard.
+3. Set **Build Command**: `docker compose --profile api build`.
+4. Set **Start Command**: `docker compose --profile api up -d`.
+
+### Directory Layout (excerpt)
+```text
+.
+├── Personalized-GenAI-News-Pipeline-Scrape-Rank-Deliver-
+│   └── ai-news-aggregator
+│       ├── app/            # backend Python package
+│       │   ├── agents/
+│       │   ├── scrapers/
+│       │   └── database/
+│       ├── docker/         # compose, env examples
+│       ├── frontend/       # React UI
+│       ├── main.py         # CLI entrypoint
+│       └── pyproject.toml
+├── README.md
+```
+
+---
+
+## �📈 Extended Architecture
 ```mermaid
 sequenceDiagram
   autonumber
