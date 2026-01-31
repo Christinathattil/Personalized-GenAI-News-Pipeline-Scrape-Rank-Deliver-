@@ -50,7 +50,6 @@ services:
   - type: web
     runtime: static
     name: ai-news-frontend
-    plan: free
     buildCommand: |
       cd frontend
       npm ci
