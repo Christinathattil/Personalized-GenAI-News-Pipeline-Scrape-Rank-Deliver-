@@ -6,7 +6,7 @@ services:
   # FastAPI back-end
   # ---------------------------------------------------------------------------
   - type: web
-    runtime: static
+    runtime: python
     name: ai-news-api
     env: python
     plan: free
@@ -47,7 +47,8 @@ services:
   # ---------------------------------------------------------------------------
   # React front-end (static site)
   # ---------------------------------------------------------------------------
-  - type: static
+  - type: web
+    runtime: static
     name: ai-news-frontend
     plan: free
     buildCommand: |
