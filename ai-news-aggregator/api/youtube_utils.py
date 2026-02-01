@@ -1,4 +1,4 @@
-"""YouTube URL parsing utilities to extract channel IDs."""
+ """YouTube URL parsing utilities to extract channel IDs."""
 from __future__ import annotations
 
 import re
