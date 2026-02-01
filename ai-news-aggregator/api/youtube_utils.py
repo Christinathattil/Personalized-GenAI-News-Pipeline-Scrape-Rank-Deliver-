@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import re
+import os
 import requests
 from typing import Optional, Tuple
 
@@ -72,9 +73,27 @@ def resolve_handle_to_channel_id(handle: str) -> Optional[str]:
 
 
 def get_channel_id_from_video(video_id: str) -> Tuple[Optional[str], Optional[str]]:
+    """Get channel ID from a video ID.
+
+    If env var YOUTUBE_API_KEY is set, use YouTube Data API v3 which is faster and
+    more reliable than scraping. Falls back to the oEmbed + scraping approach
+    when no key is configured.
     """
-    Get channel ID from a video ID using oembed (no API key needed).
-    """
+    api_key = os.getenv("YOUTUBE_API_KEY")
+    if api_key:
+        try:
+            resp = requests.get(
+                "https://www.googleapis.com/youtube/v3/videos",
+                params={"part": "snippet", "id": video_id, "key": api_key},
+                timeout=5,
+            )
+            if resp.status_code == 200:
+                items = resp.json().get("items", [])
+                if items:
+                    snippet = items[0]["snippet"]
+                    return snippet.get("channelId"), snippet.get("channelTitle")
+        except Exception:
+            pass  # fall through to oEmbed method below
     try:
         # Use oembed to get video info
         response = requests.get(
