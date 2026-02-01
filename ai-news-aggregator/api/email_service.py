@@ -148,7 +148,8 @@ def _send_email(to_email: str, subject: str, html_body: str, text_body: str) -> 
         msg.attach(MIMEText(text_body, "plain"))
         msg.attach(MIMEText(html_body, "html"))
         
-        with smtplib.SMTP(config["smtp_host"], config["smtp_port"]) as server:
+        # Use a 10-second socket timeout so the request doesn't hang indefinitely
+        with smtplib.SMTP(config["smtp_host"], config["smtp_port"], timeout=10) as server:
             server.starttls()
             server.login(config["smtp_user"], config["smtp_password"])
             server.sendmail(config["from_email"], to_email, msg.as_string())
