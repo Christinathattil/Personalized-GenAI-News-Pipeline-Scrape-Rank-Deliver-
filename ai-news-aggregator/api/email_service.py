@@ -8,6 +8,9 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from typing import Optional
 
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail
+
 logger = logging.getLogger(__name__)
 
 
@@ -35,8 +38,8 @@ def send_confirmation_email(
     """
     config = get_email_config()
     
-    if not config["smtp_user"] or not config["smtp_password"]:
-        logger.warning("SMTP credentials not configured. Skipping confirmation email.")
+    if not os.getenv("SENDGRID_API_KEY"):
+        logger.warning("SENDGRID_API_KEY not set. Skipping confirmation email.")
         return False
     
     confirm_url = f"{config['base_url']}/api/confirm/{confirmation_token}"
@@ -136,26 +139,26 @@ def send_unsubscribe_confirmation(to_email: str, user_name: str) -> bool:
 
 
 def _send_email(to_email: str, subject: str, html_body: str, text_body: str) -> bool:
-    """Internal function to send email via SMTP."""
-    config = get_email_config()
-    
+    """Internal helper that sends mail via SendGrid's Web API."""
+    api_key = os.getenv("SENDGRID_API_KEY")
+    from_email = os.getenv("FROM_EMAIL", "AI News Digest <no-reply@example.com>")
+
+    if not api_key:
+        logger.error("SENDGRID_API_KEY not configured")
+        return False
+
     try:
-        msg = MIMEMultipart("alternative")
-        msg["Subject"] = subject
-        msg["From"] = config["from_email"]
-        msg["To"] = to_email
-        
-        msg.attach(MIMEText(text_body, "plain"))
-        msg.attach(MIMEText(html_body, "html"))
-        
-        # Use a 10-second socket timeout so the request doesn't hang indefinitely
-        with smtplib.SMTP(config["smtp_host"], config["smtp_port"], timeout=10) as server:
-            server.starttls()
-            server.login(config["smtp_user"], config["smtp_password"])
-            server.sendmail(config["from_email"], to_email, msg.as_string())
-        
-        logger.info(f"Email sent successfully to {to_email}")
+        message = Mail(
+            from_email=from_email,
+            to_emails=to_email,
+            subject=subject,
+            plain_text_content=text_body,
+            html_content=html_body,
+        )
+        sg = SendGridAPIClient(api_key)
+        sg.send(message)
+        logger.info("Email sent successfully to %s", to_email)
         return True
-    except Exception as e:
-        logger.error(f"Failed to send email to {to_email}: {e}")
+    except Exception as exc:  # noqa: BLE001
+        logger.error("Failed to send email to %s: %s", to_email, exc)
         return False
