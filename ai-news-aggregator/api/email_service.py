@@ -10,7 +10,7 @@ from typing import Optional
 
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
-
+import httpx, json
 logger = logging.getLogger(__name__)
 
 
@@ -138,27 +138,26 @@ def send_unsubscribe_confirmation(to_email: str, user_name: str) -> bool:
     return _send_email(to_email, subject, html_body, text_body)
 
 
-def _send_email(to_email: str, subject: str, html_body: str, text_body: str) -> bool:
-    """Internal helper that sends mail via SendGrid's Web API."""
-    api_key = os.getenv("SENDGRID_API_KEY")
-    from_email = os.getenv("FROM_EMAIL", "AI News Digest <no-reply@example.com>")
 
+
+def _send_email(to_email, subject, html_body, text_body):
+    api_key = os.getenv("RESEND_API_KEY")
     if not api_key:
-        logger.error("SENDGRID_API_KEY not configured")
+        logger.error("RESEND_API_KEY not set")
         return False
-
+    headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
+    payload = {
+        "from": os.getenv("FROM_EMAIL"),
+        "to": [to_email],
+        "subject": subject,
+        "html": html_body,
+        "text": text_body,
+    }
     try:
-        message = Mail(
-            from_email=from_email,
-            to_emails=to_email,
-            subject=subject,
-            plain_text_content=text_body,
-            html_content=html_body,
-        )
-        sg = SendGridAPIClient(api_key)
-        sg.send(message)
-        logger.info("Email sent successfully to %s", to_email)
+        r = httpx.post("https://api.resend.com/emails", headers=headers, json=payload, timeout=10)
+        r.raise_for_status()
+        logger.info("Email sent to %s", to_email)
         return True
-    except Exception as exc:  # noqa: BLE001
-        logger.error("Failed to send email to %s: %s", to_email, exc)
+    except Exception as exc:
+        logger.error("Resend error: %s", exc)
         return False
