@@ -28,7 +28,7 @@ services:
         value: https://ai-news-api.onrender.com
 
       # HuggingFace token for summarisation model
-      - key: HF_AUTH_TOKEN
+      - key: HUGGINGFACE_API_TOKEN
         sync: false  # add via Render dashboard
 
       # SMTP credentials (Gmail, SendGrid, etc.)
