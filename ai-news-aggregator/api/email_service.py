@@ -8,9 +8,6 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from typing import Optional
 
-from sendgrid import SendGridAPIClient
-from sendgrid.helpers.mail import Mail
-import httpx, json
 logger = logging.getLogger(__name__)
 
 
@@ -38,8 +35,8 @@ def send_confirmation_email(
     """
     config = get_email_config()
     
-    if not os.getenv("SENDGRID_API_KEY"):
-        logger.warning("SENDGRID_API_KEY not set. Skipping confirmation email.")
+    if not config["smtp_user"] or not config["smtp_password"]:
+        logger.warning("SMTP credentials not set. Skipping confirmation email.")
         return False
     
     confirm_url = f"{config['base_url']}/api/confirm/{confirmation_token}"
@@ -140,24 +137,29 @@ def send_unsubscribe_confirmation(to_email: str, user_name: str) -> bool:
 
 
 
-def _send_email(to_email, subject, html_body, text_body):
-    api_key = os.getenv("RESEND_API_KEY")
-    if not api_key:
-        logger.error("RESEND_API_KEY not set")
+def _send_email(to_email: str, subject: str, html_body: str, text_body: str) -> bool:
+    """Send email via SMTP."""
+    config = get_email_config()
+    
+    if not config["smtp_user"] or not config["smtp_password"]:
+        logger.error("SMTP credentials not set")
         return False
-    headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
-    payload = {
-        "from": os.getenv("FROM_EMAIL"),
-        "to": [to_email],
-        "subject": subject,
-        "html": html_body,
-        "text": text_body,
-    }
+    
+    msg = MIMEMultipart("alternative")
+    msg["Subject"] = subject
+    msg["From"] = config["from_email"] or config["smtp_user"]
+    msg["To"] = to_email
+    
+    msg.attach(MIMEText(text_body, "plain"))
+    msg.attach(MIMEText(html_body, "html"))
+    
     try:
-        r = httpx.post("https://api.resend.com/emails", headers=headers, json=payload, timeout=10)
-        r.raise_for_status()
+        with smtplib.SMTP(config["smtp_host"], config["smtp_port"]) as server:
+            server.starttls()
+            server.login(config["smtp_user"], config["smtp_password"])
+            server.sendmail(config["from_email"] or config["smtp_user"], to_email, msg.as_string())
         logger.info("Email sent to %s", to_email)
         return True
     except Exception as exc:
-        logger.error("Resend error: %s", exc)
+        logger.error("SMTP error: %s", exc)
         return False
