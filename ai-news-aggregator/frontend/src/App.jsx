@@ -1,7 +1,11 @@
 import { useState, useEffect } from 'react'
 import { Mail, User, Youtube, Sparkles, Check, ChevronRight, ChevronLeft, Clock, Loader2 } from 'lucide-react'
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api'
+const API_BASE =
+  import.meta.env.VITE_API_BASE_URL ||
+  (import.meta.env.PROD
+    ? 'https://ai-news-api-dzu8.onrender.com/api'
+    : '/api')
 
 function App() {
   const [step, setStep] = useState(1)
