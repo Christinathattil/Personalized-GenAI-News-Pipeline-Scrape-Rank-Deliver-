@@ -19,15 +19,6 @@ flowchart LR
     end
 ```
 
-```mermaid
-flowchart TB
-    S([Scheduler]) --> A[RSS & HTML Scraper]
-    S --> V[YouTube Captions]
-    A --> DB[(PostgreSQL)]
-    V --> T[Transcript Cleaner]
-    T --> DB
-    DB --> C[NLP Summariser]
-    C --> E[Embeddings]
     E --> R[Ranker]
     R --> F[Digest Formatter]
     F --> M[SMTP Sender]
