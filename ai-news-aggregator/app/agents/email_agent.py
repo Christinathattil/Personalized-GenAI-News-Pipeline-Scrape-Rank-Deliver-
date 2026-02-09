@@ -8,6 +8,7 @@ from __future__ import annotations
 import logging
 import os
 from datetime import datetime
+from zoneinfo import ZoneInfo
 from typing import List, Optional
 
 from huggingface_hub import InferenceClient
@@ -48,8 +49,12 @@ class EmailDigestResponse(BaseModel):
 
         for article in self.articles:
             markdown += f"## {article.title}\n\n"
-            markdown += f"{article.summary}\n\n"
-            markdown += f"[Read more →]({article.url})\n\n"
+            markdown += f"*Score:* **{article.relevance_score:.1f}/10**  |  *Source:* `{article.article_type}`\n\n"
+            # bullet-point summary (first 3 sentences)
+            bullets = [s.strip() for s in article.summary.split('. ') if s.strip()][:3]
+            for b in bullets:
+                markdown += f"- {b}.\n"
+            markdown += f"\n[Read more →]({article.url})\n\n"
             markdown += "---\n\n"
 
         return markdown
@@ -60,16 +65,12 @@ class EmailDigest(BaseModel):
     ranked_articles: List[dict] = Field(description="Top 10 ranked articles with their details")
 
 
-EMAIL_PROMPT = """You craft ✨ scroll-stopping ✨ newsletters for a Gen-Z-leaning tech crowd.
-Write a punchy *2-3 sentence* opener that:
-• Shouts out the reader by name
-• Mentions today’s date
-• Teases what’s hot in the top AI stories (no spoilers!)
-• Uses an upbeat, conversational vibe (emoji allowed 👍) while *still sounding smart*
-• Ends with a smooth hand-off into the list below
-
-Keep jargon low, energy high, professionalism intact."""
-
+EMAIL_PROMPT = (
+    "You craft ✨ scroll-stopping ✨ newsletters for a Gen-Z tech crowd. "
+    "Write a hype intro (max 4 sentences) that greets the reader by name, "
+    "mentions today's date (IST), keeps energy high, and smoothly hands off "
+    "to the digest without revealing any article topics."
+)
 
 class EmailAgent:
     """Creates an email from ranked digests using HuggingFace LLM."""
@@ -97,7 +98,7 @@ class EmailAgent:
     def generate_introduction(self, ranked_articles: List) -> EmailIntroduction:
         """Generate personalized greeting and introduction using HuggingFace LLM."""
         user_name = self.user_profile.get("name", "User")
-        current_date = datetime.now().strftime("%B %d, %Y")
+        current_date = datetime.now(ZoneInfo("Asia/Kolkata")).strftime("%B %d, %Y")
 
         if not ranked_articles:
             return EmailIntroduction(
@@ -105,24 +106,15 @@ class EmailAgent:
                 introduction="No articles were ranked today."
             )
 
-        top_articles = ranked_articles[:10]
-        article_summaries = "\n".join([
-            f"{idx + 1}. {article.title if hasattr(article, 'title') else article.get('title', 'N/A')} "
-            f"(Score: {article.relevance_score if hasattr(article, 'relevance_score') else article.get('relevance_score', 0):.1f}/10)"
-            for idx, article in enumerate(top_articles)
-        ])
-
         user_prompt = f"""{EMAIL_PROMPT}
 
-Create an email introduction for {user_name} for {current_date}.
+Name: {user_name}
+Date: {current_date}
 
-Top 10 ranked articles:
-{article_summaries}
-
-Generate a greeting and a 2-3 sentence introduction that previews these articles.
-Format your response EXACTLY as:
-GREETING: [your greeting here]
-INTRODUCTION: [your introduction here]"""
+Respond using this template exactly:
+GREETING: <one short friendly greeting>
+INTRODUCTION: <max 4 sentences intro>
+"""
 
         try:
             logger.info("Generating email introduction via HuggingFace LLM...")
