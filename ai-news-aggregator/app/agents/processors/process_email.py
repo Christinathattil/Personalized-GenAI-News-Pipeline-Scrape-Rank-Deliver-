@@ -2,6 +2,8 @@
 from __future__ import annotations
 
 import logging
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
 from app.agents.email_agent import EmailAgent, RankedArticleDetail, EmailDigestResponse
 from app.agents.news_curator import CuratorAgent
@@ -162,7 +164,8 @@ def send_digest_email(hours: int = 24, top_n: int = 10) -> dict:
         markdown_content = result.to_markdown()
         html_content = digest_to_html(result)
 
-        subject = f"Daily AI News Digest - {result.introduction.greeting.split('for ')[-1] if 'for ' in result.introduction.greeting else 'Today'}"
+        date_ist = datetime.now(ZoneInfo("Asia/Kolkata")).strftime("%B %d, %Y")
+        subject = f"Daily AI News Digest - {date_ist}"
 
         logger.info(f"Email subject: {subject}")
         logger.info(f"\n=== Markdown Content ===\n{markdown_content}")

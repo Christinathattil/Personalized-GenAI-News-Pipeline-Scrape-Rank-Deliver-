@@ -1,10 +1,23 @@
-# AI News Aggregator 📰🤖
+# AI News Digest Pipeline 📬🤖
+
+Turns the daily AI fire-hose into a short, emoji-laced newsletter delivered to your inbox. 📰🤖
 
 **Turn the tidal wave of tech & AI news into a bite-sized daily digest.** The project scrapes multiple sources, enriches articles with transcripts & summaries, ranks them with embeddings, then emails a beautiful newsletter-style digest—all in < 10 minutes.
 
 ---
 
-## 🚦 How It Works
+## ⚙️ High-Level Architecture
+```mermaid
+flowchart LR
+    subgraph Daily run
+        A[Scrapers (RSS/YouTube)] --> B[(PostgreSQL)]
+        B --> C[Digest Generator 📝]
+        C --> D[Relevance Ranker ⭐]
+        D --> E[Email Formatter ✉️]
+        E --> F[SMTP Sender 📤]
+        F --> G[Inbox 📥]
+    end
+```
 
 ```mermaid
 flowchart TB
@@ -38,7 +51,30 @@ flowchart TB
 
 ---
 
-## 🛠️  Tech Stack
+## �️ Directory Layout (excerpt)
+```text
+ai-news-aggregator/
+├── app/
+│   ├── agents/            # HF/OpenAI powered helpers
+│   ├── scrapers/          # YouTube + RSS parsers
+│   ├── database/          # SQLAlchemy models & helpers
+│   └── config.py          # Channel IDs etc.
+├── frontend/              # React + Tailwind sign-up UI
+├── docker/                # compose.yml + env templates
+├── main.py                # CLI orchestrator
+└── README.md
+```
+
+## 🧰 Tech Stack
+| Layer | Tools |
+|-------|-------|
+| Language | Python 3.12 · TypeScript/JS (frontend) |
+| AI / NLP | Hugging Face Inference API (Llama-3) |
+| Web / API | FastAPI · Uvicorn |
+| Data | PostgreSQL · SQLAlchemy ORM |
+| Scraping | feedparser · youtube-transcript-api |
+| Mail | Gmail SMTP via `smtplib` |
+| Dev Ops | Docker Compose · GitHub Actions (optional) |
 
 | Layer            | Tooling                                                    |
 |------------------|------------------------------------------------------------|
@@ -52,7 +88,22 @@ flowchart TB
 
 ---
 
-## ⚡ Quick-Start (Local)
+## 🚀 Run Locally in 3 Steps
+```bash
+# 1. Clone + install deps
+$ git clone https://github.com/<you>/ai-news-aggregator.git
+$ cd ai-news-aggregator
+$ python -m venv .venv && source .venv/bin/activate
+$ pip install uv && uv sync
+
+# 2. Spin up Postgres (Docker)
+$ docker compose -f docker/docker-compose.yml up -d
+
+# 3. Configure env & fire the pipeline
+$ cp app/.env.example app/.env  &&  cp docker/example.env docker/.env
+$ nano app/.env   # fill SMTP & HF_API_TOKEN
+$ python -m app.daily_runner --hours 24 --top 5
+```
 
 ### 1. Clone & set-up
 ```bash
@@ -137,7 +188,19 @@ uvicorn app.main:app --reload --port 8000
 
 ---
 
-## � Docker & Render Deployment
+## ✨ Project Highlights
+- Fully automated scrape → summarise → rank → email flow
+- Gen-Z styled newsletter with emoji, bullet-point digests & relevance scores
+- Hugging Face LLMs only – no OpenAI key required
+- Scores & sources surfaced for transparency
+- 100 % Python backend + modern React sign-up frontend
+
+## 🔮 Future Improvements
+- Vector-DB caching for faster similarity ranking
+- Web-based dashboard to browse past digests
+- Slack / Discord delivery channels
+- Kubernetes deployment manifests
+- Automatic language detection + translation
 
 ### Local Docker Compose
 ```bash

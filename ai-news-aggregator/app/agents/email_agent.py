@@ -66,11 +66,12 @@ class EmailDigest(BaseModel):
 
 
 EMAIL_PROMPT = (
-    "You craft ✨ scroll-stopping ✨ newsletters for a Gen-Z tech crowd. "
-    "Write a hype intro (max 4 sentences) that greets the reader by name, "
-    "mentions today's date (IST), keeps energy high, and smoothly hands off "
-    "to the digest without revealing any article topics."
+    "You're a vibey Gen-Z copywriter 📣. Craft an intro (≤4 sentences) that: "
+    "1) greets the reader by name, 2) drops today's date, 3) sets an upbeat, emoji-sprinkled tone, "
+    "4) segues into the digest without mentioning article titles or time-zone abbreviations. "
+    "Keep it fresh, concise, and hype—throw in a few tasteful emojis (🔥🚀✨ etc.)."
 )
+
 
 class EmailAgent:
     """Creates an email from ranked digests using HuggingFace LLM."""
@@ -148,7 +149,9 @@ INTRODUCTION: <max 4 sentences intro>
                 else:
                     introduction = raw
 
-            # Ensure greeting includes user name
+            # Ensure greeting includes user name and 👋 emoji
+            if '👋' not in greeting:
+                greeting = greeting.rstrip('!') + ' 👋'
             if user_name not in greeting:
                 greeting = f"Hey {user_name}, here is your daily digest of AI news for {current_date}."
 
