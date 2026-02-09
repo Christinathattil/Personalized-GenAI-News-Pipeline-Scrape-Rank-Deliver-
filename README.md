@@ -10,18 +10,13 @@ Turns the daily AI fire-hose into a short, emoji-laced newsletter delivered to y
 ```mermaid
 flowchart LR
     subgraph Daily run
-        A[Scrapers (RSS/YouTube)] --> B[(PostgreSQL)]
+        A["Scrapers (RSS & YouTube)"] --> B[(PostgreSQL)]
         B --> C[Digest Generator 📝]
-        C --> D[Relevance Ranker ⭐]
+        C --> D["Relevance Ranker ⭐"]
         D --> E[Email Formatter ✉️]
         E --> F[SMTP Sender 📤]
         F --> G[Inbox 📥]
     end
-```
-
-    E --> R[Ranker]
-    R --> F[Digest Formatter]
-    F --> M[SMTP Sender]
 ```
 
 *Repository mapping*
