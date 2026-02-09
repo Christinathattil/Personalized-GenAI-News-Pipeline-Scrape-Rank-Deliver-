@@ -128,16 +128,15 @@ def digest_to_html(digest: EmailDigestResponse) -> str:
         style_block,
         "</head>",
         "<body>",
-        "  <h1>📰 Daily AI News Digest</h1>",
-        f"  <p class=\"greeting\">{digest.introduction.greeting}</p>",
+                f"  <p class=\"greeting\">{digest.introduction.greeting}</p>",
         f"  <p class=\"intro\">{digest.introduction.introduction}</p>",
         "  <hr class=\"separator\">",
     ]
 
-    for art in digest.articles:
+    for idx, art in enumerate(digest.articles, 1):
         html_parts.extend([
             "  <div class=\"card\">",
-            f"    <div class=\"title\">👉 {art.title}</div>",
+            f"    <div class=\"title\">{idx}. {art.title}</div>",
             f"    <p class=\"summary\">{art.summary}</p>",
             f"    <a class=\"read-more\" href=\"{art.url}\">Read more →</a>",
             "  </div>",
