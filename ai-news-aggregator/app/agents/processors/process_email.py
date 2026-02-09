@@ -134,10 +134,12 @@ def digest_to_html(digest: EmailDigestResponse) -> str:
     ]
 
     for idx, art in enumerate(digest.articles, 1):
+        bullet_html = "".join(f"<li>{s.strip()}.</li>" for s in art.summary.split('. ')[:3])
         html_parts.extend([
             "  <div class=\"card\">",
             f"    <div class=\"title\">{idx}. {art.title}</div>",
-            f"    <p class=\"summary\">{art.summary}</p>",
+            f"    <div style=\"font-size:0.9rem;color:#666;margin-bottom:8px;\"><strong>Score:</strong> {art.relevance_score:.1f}/10 &nbsp;|&nbsp; <strong>Source:</strong> {art.article_type}</div>",
+            f"    <ul style=\"margin:0 0 16px 18px;padding:0;line-height:1.4;\">{bullet_html}</ul>",
             f"    <a class=\"read-more\" href=\"{art.url}\">Read more →</a>",
             "  </div>",
         ])
