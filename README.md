@@ -4,6 +4,14 @@ Turns the daily AI fire-hose into a short, emoji-laced newsletter delivered to y
 
 **Turn the tidal wave of tech & AI news into a bite-sized daily digest.** The project scrapes multiple sources, enriches articles with transcripts & summaries, ranks them with embeddings, then emails a beautiful newsletter-style digest—all in < 10 minutes.
 
+
+## ✨ Why it's Cool
+- Zero-FOMO: daily AI digest lands in your inbox before coffee ☕
+- Full pipeline: scrape → summarise → rank → Gen-Z email with emoji
+- Llama-3 powered, no OpenAI key needed
+- One-command Docker spin-up
+- Transparent relevance score for every article
+
 ---
 
 ## ⚙️ High-Level Architecture
@@ -174,7 +182,7 @@ uvicorn app.main:app --reload --port 8000
 
 ---
 
-## ✨ Project Highlights
+<!-- highlights moved to top -->
 - Fully automated scrape → summarise → rank → email flow
 - Gen-Z styled newsletter with emoji, bullet-point digests & relevance scores
 - Hugging Face LLMs only – no OpenAI key required
