@@ -60,16 +60,15 @@ class EmailDigest(BaseModel):
     ranked_articles: List[dict] = Field(description="Top 10 ranked articles with their details")
 
 
-EMAIL_PROMPT = """You are an expert email writer specializing in creating engaging, personalized AI news digests.
+EMAIL_PROMPT = """You craft ✨ scroll-stopping ✨ newsletters for a Gen-Z-leaning tech crowd.
+Write a punchy *2-3 sentence* opener that:
+• Shouts out the reader by name
+• Mentions today’s date
+• Teases what’s hot in the top AI stories (no spoilers!)
+• Uses an upbeat, conversational vibe (emoji allowed 👍) while *still sounding smart*
+• Ends with a smooth hand-off into the list below
 
-Your role is to write a warm, professional introduction for a daily AI news digest email that:
-- Greets the user by name
-- Includes the current date
-- Provides a brief, engaging overview of what's coming in the top 10 ranked articles
-- Highlights the most interesting or important themes
-- Sets expectations for the content ahead
-
-Keep it concise (2-3 sentences for the introduction), friendly, and professional."""
+Keep jargon low, energy high, professionalism intact."""
 
 
 class EmailAgent:

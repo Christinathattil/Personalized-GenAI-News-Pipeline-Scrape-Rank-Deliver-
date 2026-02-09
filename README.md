@@ -54,34 +54,44 @@ flowchart TB
 
 ## ⚡ Quick-Start (Local)
 
-### 1. Clone & setup
+### 1. Clone & set-up
 ```bash
-# Clone
 git clone https://github.com/<you>/ai-news-aggregator.git
 cd ai-news-aggregator
 
-# Python venv
+# Create & activate virtual-env
 python -m venv .venv && source .venv/bin/activate
 
-# Faster pip (optional but recommended)
+# Install dependencies (ultra-fast)
 pip install uv
-uv pip install -e .          # ≤10 s – installs deps in editable mode
+uv sync                      # installs from pyproject.toml in a few seconds
 ```
 
-### 2. Configure ENV
-Copy the template and fill in the blanks:
+### 2. Configure environment
 ```bash
-cp .env.example .env  # then edit .env
-# ──────────────────────────────
-OPENAI_API_KEY="sk-..."
-POSTGRES_URL="postgresql+psycopg2://user:pass@localhost:5432/news"
-EMAIL_FROM="digest@your-domain.com"
-EMAIL_TO="you@your-inbox.com"
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USERNAME=...
-SMTP_PASSWORD=...
-HF_API_TOKEN="hf_..."
+# Base env for Python services
+cp app/.env.example app/.env      
+# If you’ll run docker-compose
+cp docker/example.env docker/.env
+```
+Edit the new files and provide secrets:
+```dotenv
+# ─── PostgreSQL (local Docker) ─────────────────────
+POSTGRES_USER=ainews
+POSTGRES_PASSWORD=ainews_pw
+POSTGRES_DB=ainews_db
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5432
+
+# ─── Email (Gmail SMTP example) ────────────────────
+SMTP_USER=your@gmail.com
+SMTP_PASSWORD=abcd efgh ijkl mnop   # 16-char Gmail App Password
+EMAIL_FROM="AI News Digest <your@gmail.com>"
+EMAIL_TO="recipient@example.com"
+
+# ─── AI APIs (choose at least one) ────────────────
+HF_API_TOKEN="hf_..."          # Hugging Face Inference
+OPENAI_API_KEY="sk-..."        # OpenAI (optional alternative)
 ```
 
 > **Note**: The pipeline defaults to using Hugging Face models via `HF_API_TOKEN`. If you prefer OpenAI models (e.g. GPT-4), simply leave `HF_API_TOKEN` blank and supply `OPENAI_API_KEY` instead.
